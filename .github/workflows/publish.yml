@@ -23,8 +23,13 @@ jobs:
           filters: |
             fastapi_mcp:
               - 'airflow_chat/plugins/app/**/*'
+              - 'pyproject.toml'
+              - 'poetry.lock'
+              - 'Dockerfile.server'
             airflow_plugin:
-              - 'airflow_chat/**/*'      
+              - 'airflow_chat/**/*'
+              - 'pyproject.toml'
+              - 'poetry.lock'      
 
   mcp_fastapi_image:
     runs-on: ubuntu-latest
