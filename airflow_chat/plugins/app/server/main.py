@@ -5,10 +5,10 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.server.chat import chat_router
-from app.databases.postgres import Database
-from app.utils.config import Config
-from app.utils.logger import Logger
+from .chat import chat_router
+from ..databases.postgres import Database
+from ..utils.config import Config
+from ..utils.logger import Logger
 
 
 @asynccontextmanager

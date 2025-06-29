@@ -2,7 +2,7 @@ import os
 
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
-from app.utils.singleton import Singleton
+from ..utils.singleton import Singleton
 
 
 class Database(metaclass=Singleton):

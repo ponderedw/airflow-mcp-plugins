@@ -6,9 +6,9 @@ from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import HumanMessage, BaseMessage, \
     SystemMessage, ToolMessage, AIMessage, AIMessageChunk
 
-from app.databases.postgres import Database
-from app.models import ChatModel
-from app.utils.logger import Logger
+from ..databases.postgres import Database
+from ..models import ChatModel
+from ..utils.logger import Logger
 
 import os
 

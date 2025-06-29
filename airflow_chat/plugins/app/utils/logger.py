@@ -1,7 +1,7 @@
 import sys
 import logging
 
-from app.utils.singleton import Singleton
+from ..utils.singleton import Singleton
 
 
 class Logger(metaclass=Singleton):

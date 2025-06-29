@@ -13,7 +13,7 @@ x-airflow-common:
     - airflow-plugin.env
   volumes:
     - ./local_airflow/dags:/opt/airflow/dags
-    - ./airflow_chat/plugins:/opt/airflow/plugins
+    # - ./airflow_chat/plugins:/opt/airflow/plugins
 
 x-airflow_depends_on:
   &airflow-depends-on

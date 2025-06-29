@@ -251,10 +251,10 @@ class LLMChatAgent:
             
         except requests.RequestException as e:
             print(f"Failed to initialize chat session: {e}")
-            return False, None
+            return False, e
         except Exception as e:
             print(f"Unexpected error initializing session: {e}")
-            return False, None
+            return False, e
     
     def stream_chat_response(self, message, conversation_id=None):
         """Stream response from FastAPI backend"""
@@ -372,8 +372,9 @@ class AirflowChatView(AppBuilderBaseView):
         # Return streaming response
         def generate():
             try:
-                if os.environ.get('INTERNAL_AI_ASSISTANT_SERVER', True):
-                    from app.server.llm import get_stream_agent_responce
+                if str(os.environ.get('INTERNAL_AI_ASSISTANT_SERVER', True))\
+                   .lower() == 'true':
+                    from .app.server.llm import get_stream_agent_responce
                     md_uri = str(settings.Session().bind.url).replace('postgresql+psycopg2', 'postgres')
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
@@ -443,10 +444,11 @@ class AirflowChatView(AppBuilderBaseView):
         conversation_id = str(uuid.uuid4())
         
         try:
-            if not os.environ.get('INTERNAL_AI_ASSISTANT_SERVER', True):
+            if not str(os.environ.get('INTERNAL_AI_ASSISTANT_SERVER', True))\
+               .lower() == 'true':
                 success, cookies = self.llm_agent.initialize_chat_session(conversation_id)
             else:
-                from app.databases.postgres import Database
+                from .app.databases.postgres import Database
                 md_uri = str(settings.Session().bind.url).replace('postgresql+psycopg2', 'postgres')
                 asyncio.run(Database.setup(md_uri))
                 print('Database setup complete')
@@ -460,7 +462,7 @@ class AirflowChatView(AppBuilderBaseView):
                 })
             else:
                 return jsonify({
-                    "error": "Failed to initialize chat session"
+                    "error": f"Failed to initialize chat session: {cookies}"
                 }), 500
                 
         except Exception as e:

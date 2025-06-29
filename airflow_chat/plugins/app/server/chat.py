@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from app.server.llm import get_stream_agent_responce
+from .llm import get_stream_agent_responce
 
 
 chat_router = APIRouter()
