@@ -1,0 +1,30 @@
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV HOME=/root \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VENV_IN_PROJECT=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
+
+WORKDIR /code
+
+# Install Poetry
+RUN pip install --no-cache-dir poetry
+
+COPY pyproject.toml poetry.lock README.md ./
+
+RUN poetry install --no-root
+
+ENV PYTHONPATH "${PYTHONPATH}:/code:/code/app"
+
+COPY ./airflow_chat/plugins/app/ /code/app
+
+# DEVELOPMENT
+CMD ["poetry", "run", "python", "-m", "fastapi", "dev", "app/server/main.py", "--port", "8080", "--host", "0.0.0.0"]
+
+# If running behind a proxy like Nginx or Traefik add --proxy-headers
+# CMD ["fastapi", "run", "app/main.py", "--port", "80", "--proxy-headers"]
