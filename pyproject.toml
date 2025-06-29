@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "airflow-chat"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "An Apache Airflow plugin that enables AI-powered chat interactions with your Airflow instance through MCP integration and an intuitive UI."
 license = "MIT"
 authors = ["Hipposys"]

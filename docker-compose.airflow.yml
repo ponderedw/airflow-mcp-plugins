@@ -10,6 +10,7 @@ x-airflow-common:
   user: "${AIRFLOW_UID}:0"
   env_file:
     - local_airflow/common-airflow.env
+    - airflow-plugin.env
   volumes:
     - ./local_airflow/dags:/opt/airflow/dags
     - ./airflow_chat/plugins:/opt/airflow/plugins
