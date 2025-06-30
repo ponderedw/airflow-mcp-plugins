@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "airflow-chat"
-version = "0.1.0a4"
+version = "0.1.0a5"
 description = "An Apache Airflow plugin that enables AI-powered chat interactions with your Airflow instance through MCP integration and an intuitive UI."
 license = "MIT"
 authors = ["Hipposys"]
@@ -28,7 +28,7 @@ mcp = {extras = ["cli"], version = "^1.9"}
 httpx = "^0.27"
 psycopg = {extras = ["binary"], version = "^3.2"}
 langchain-mcp-adapters = "0.1.1"
-airflow-mcp-hipposys = "0.1.0a7"
+airflow-mcp-hipposys = "0.1.0a10"
 
 [tool.poetry.plugins."airflow.plugins"]
 airflow-chat-plugin = "airflow_chat.plugins.airflow_chat:AirflowChatPlugin"
