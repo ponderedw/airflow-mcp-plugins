@@ -201,7 +201,7 @@ def admin_only(f):
         if not any(role in users_roles for role in approved_roles):
             flash("You do not have permission to access this page.", "danger")
             return redirect(url_for("Airflow.index"))
-        return f(*args, **kwargs)
+        return f(*args, **kwargs, username=current_user.username)
     return decorated_function
 
 def failure_tolerant(f):
@@ -352,15 +352,16 @@ class AirflowChatView(AppBuilderBaseView):
     @expose("/")
     @admin_only
     @failure_tolerant
-    def chat_interface(self):
+    def chat_interface(self, **kwargs):
         """Main chat interface"""
         return self.render_template("chat_interface.html")
     
     @expose("/api/chat", methods=["POST"])
     @admin_only
     @failure_tolerant
-    def chat_api(self):
+    def chat_api(self, **kwargs):
         """API endpoint for chat messages"""
+        username = kwargs.get('username')
         data = request.get_json()
         message = data.get("message", "").strip()
         conversation_id = data.get("conversation_id")
@@ -370,7 +371,7 @@ class AirflowChatView(AppBuilderBaseView):
             return jsonify({"error": "Message is required"}), 400
         
         # Return streaming response
-        def generate():
+        def generate(username=None):
             try:
                 if str(os.environ.get('INTERNAL_AI_ASSISTANT_SERVER', True))\
                    .lower() == 'true':
@@ -381,7 +382,7 @@ class AirflowChatView(AppBuilderBaseView):
                     try:
                         # Get the async generator function
                         stream_agent_response = loop.run_until_complete(
-                            get_stream_agent_responce(conversation_id, message, md_uri)
+                            get_stream_agent_responce(conversation_id, message, md_uri, username)
                         )
                         
                         # Stream each chunk as it comes
@@ -427,7 +428,7 @@ class AirflowChatView(AppBuilderBaseView):
                 yield "data: [DONE]\n\n"
         
         return Response(
-            generate(),
+            generate(username=username),
             mimetype="text/plain",
             headers={
                 "Cache-Control": "no-cache",
@@ -439,7 +440,7 @@ class AirflowChatView(AppBuilderBaseView):
     @expose("/api/new_chat", methods=["POST"])
     @admin_only
     @failure_tolerant
-    def new_chat(self):
+    def new_chat(self, **kwargs):
         """Initialize a new chat session"""
         conversation_id = str(uuid.uuid4())
         
@@ -473,7 +474,7 @@ class AirflowChatView(AppBuilderBaseView):
     @expose("/api/clear_session", methods=["POST"])
     @admin_only
     @failure_tolerant
-    def clear_session(self):
+    def clear_session(self, **kwargs):
         """Clear a specific chat session"""
         data = request.get_json()
         conversation_id = data.get("conversation_id")
@@ -502,7 +503,7 @@ class AirflowChatView(AppBuilderBaseView):
     @expose("/api/session_stats", methods=["GET"])
     @admin_only
     @failure_tolerant
-    def session_stats(self):
+    def session_stats(self, **kwargs):
         """Get session statistics"""
         try:
             stats = self.llm_agent.get_session_stats()

@@ -17,3 +17,4 @@ httpx<=0.27.0
 psycopg[binary]<=3.2.9
 langchain_mcp_adapters==0.1.1
 airflow-mcp-hipposys==0.1.0a6
+langfuse==2.60.8

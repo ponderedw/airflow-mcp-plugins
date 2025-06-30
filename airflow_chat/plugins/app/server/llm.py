@@ -16,6 +16,8 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from datetime import datetime
 from langchain.tools import Tool
 
+from langfuse.callback import CallbackHandler
+
 
 PROMPT_MESSAGE = """Be a chatbot."""
 
@@ -189,14 +191,25 @@ class LLMAgent:
         # yield ChatMessage.from_event({'event': 'done'})
 
 
-def get_user_chat_config(session_id: str) -> dict:
-    return {'configurable': {'thread_id': session_id},
-            "recursion_limit": 100}
+def get_user_chat_config(session_id: str, username: str = None) -> dict:
+    chat_config = {'configurable': {'thread_id': session_id},
+                   "recursion_limit": 100}
+    if os.environ.get('LANGFUSE_HOST'):
+        langfuse_handler = CallbackHandler(
+                user_id=username if username else session_id,
+                session_id=f"{session_id}",
+                public_key=os.environ.get('LANGFUSE_PUBLIC_KEY'),
+                secret_key=os.environ.get('LANGFUSE_SECRET_KEY'),
+                host=os.environ.get('LANGFUSE_HOST')
+            )
+        chat_config['callbacks'] = [langfuse_handler]
+    return chat_config
 
 
 async def get_stream_agent_responce(session_id, message,
-                                    md_uri: str = None):
-    user_config = get_user_chat_config(session_id)
+                                    md_uri: str = None,
+                                    username: str = None):
+    user_config = get_user_chat_config(session_id, username)
     mcp_host = os.environ.get('mcp_host', 'mcp_sse_server:8000')
     TRANSPORT_TYPE = os.environ.get('TRANSPORT_TYPE', 'stdio')
     if TRANSPORT_TYPE == 'stdio':
