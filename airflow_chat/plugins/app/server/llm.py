@@ -215,7 +215,11 @@ async def get_stream_agent_responce(session_id, message,
                         'AIRFLOW_INSIGHTS_MODE':
                             os.getenv('AIRFLOW_INSIGHTS_MODE'),
                         'POST_MODE': os.getenv('POST_MODE'),
-                        'TRANSPORT_TYPE': 'stdio'
+                        'TRANSPORT_TYPE': 'stdio',
+                        '_AIRFLOW_WWW_USER_USERNAME':
+                            os.getenv('_AIRFLOW_WWW_USER_USERNAME'),
+                        '_AIRFLOW_WWW_USER_PASSWORD':
+                            os.getenv('_AIRFLOW_WWW_USER_PASSWORD')
                     }.items() if v is not None}
                 }
             }
