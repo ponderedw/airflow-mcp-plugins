@@ -5,3 +5,5 @@ __pycache__
 prod.env
 prod_pgdata
 airflow-plugin.env
+airflow-mcp.env
+langchain-fastapi.env

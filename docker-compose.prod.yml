@@ -7,23 +7,20 @@ services:
     image: hipposysai/airflow-mcp-fastapi:latest
     container_name: chat_fastapi
     env_file:
-      - prod.env
+      - langchain-fastapi.env
     ports:
       - "8080:8080"
     networks:
-      - prod-network
-  chat_mcp:
+      - data-lake-network 
+  mcp_sse_server:
     image: hipposysai/airflow-mcp:latest
-    environment:
-      TRANSPORT_TYPE: sse
-      POST_MODE: 'false'
-    container_name: chat_mcp
+    container_name: mcp_sse_server
     env_file:
-      - prod.env
+      - airflow-mcp.env
     ports:
       - "8081:8000"
     networks:
-      - prod-network
+      - data-lake-network 
 
 networks:
   prod-network:

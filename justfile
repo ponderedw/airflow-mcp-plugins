@@ -15,5 +15,5 @@ all:
   docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.chat.yml -f docker-compose.ui.yml -f docker-compose.mcp.yml up --build --pull always
 
 prod:
-  docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.ui.yml -f docker-compose.prod.yml down
-  docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.ui.yml -f docker-compose.prod.yml up --build --pull always
+  docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.prod.yml down
+  docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.prod.yml up --build --pull always
