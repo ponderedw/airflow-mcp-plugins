@@ -17,3 +17,7 @@ all:
 prod:
   docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.prod.yml down
   docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.prod.yml up --build --pull always
+
+airflow_langfuse:
+  docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.langfuse.yml down
+  docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.langfuse.yml up --build --pull always
