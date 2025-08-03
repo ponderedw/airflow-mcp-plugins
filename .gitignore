@@ -8,3 +8,6 @@ airflow-plugin.env
 airflow-mcp.env
 langchain-fastapi.env
 langfuse_data
+neo4j_data
+dist
+.DS_Store

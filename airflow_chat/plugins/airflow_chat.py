@@ -341,6 +341,40 @@ class LLMChatAgent:
             'active_sessions': self.session_manager.get_active_sessions_count()
         }
 
+class DBTMetadataLoader:
+    """Handler for DBT metadata loading functionality"""
+    
+    @staticmethod
+    def is_graph_db_enabled():
+        """Check if GRAPH_DB environment variable is set"""
+        return bool(os.environ.get('GRAPH_DB'))
+    
+    @staticmethod
+    def load_dbt_metadata(manifest_content, catalog_content):
+        """Load DBT metadata to the configured graph database"""
+        graph_db = os.environ.get('GRAPH_DB')
+        
+        if graph_db == 'falkordb':
+            from dbt_graph_loader.loaders.falkordb_loader import DBTFalkorDBLoader
+            loader = DBTFalkorDBLoader(
+                host=os.environ.get("GRAPH_HOST", "falkordb"),
+                username=os.environ.get('GRAPH_USER'),
+                password=os.environ.get('GRAPH_PASSWORD')
+            )
+            loader.load_dbt_to_falkordb_from_strings(manifest_content, catalog_content)
+            
+        elif graph_db == 'neo4j':
+            from dbt_graph_loader.loaders.neo4j_loader import DBTNeo4jLoader
+            loader = DBTNeo4jLoader(
+                f'neo4j://{os.environ.get("GRAPH_HOST", "neo4j")}:7687',
+                os.environ.get('GRAPH_USER'),
+                os.environ.get('GRAPH_PASSWORD')
+            )
+            loader.load_dbt_to_neo4j_from_strings(manifest_content, catalog_content)
+            
+        else:
+            raise ValueError(f'Unsupported GRAPH_DB value: {graph_db}. Supported values are: falkordb, neo4j')
+
 class AirflowChatView(AppBuilderBaseView):
     default_view = "chat_interface"
     route_base = "/airflow_chat"
@@ -348,13 +382,27 @@ class AirflowChatView(AppBuilderBaseView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.llm_agent = LLMChatAgent()
+        self.dbt_loader = DBTMetadataLoader()
     
     @expose("/")
     @admin_only
     @failure_tolerant
     def chat_interface(self, **kwargs):
         """Main chat interface"""
-        return self.render_template("chat_interface.html")
+        return self.render_template("chat_interface.html", 
+                                   graph_db_enabled=self.dbt_loader.is_graph_db_enabled())
+    
+    @expose("/dbt_upload")
+    @admin_only
+    @failure_tolerant
+    def dbt_upload_interface(self, **kwargs):
+        """DBT metadata upload interface (only shown if GRAPH_DB is set)"""
+        if not self.dbt_loader.is_graph_db_enabled():
+            flash("DBT metadata upload is not available. GRAPH_DB environment variable is not set.", "warning")
+            return redirect(url_for("AirflowChatView.chat_interface"))
+        
+        return self.render_template("dbt_upload.html", 
+                                   graph_db=os.environ.get('GRAPH_DB'))
     
     @expose("/api/chat", methods=["POST"])
     @admin_only
@@ -512,6 +560,71 @@ class AirflowChatView(AppBuilderBaseView):
             return jsonify({
                 "error": f"Error getting session stats: {str(e)}"
             }), 500
+    
+    @expose("/api/dbt_upload", methods=["POST"])
+    @admin_only
+    @failure_tolerant
+    def upload_dbt_metadata(self, **kwargs):
+        """Upload DBT metadata files (manifest.json and catalog.json)"""
+        if not self.dbt_loader.is_graph_db_enabled():
+            return jsonify({
+                "error": "DBT metadata upload is not available. GRAPH_DB environment variable is not set."
+            }), 400
+        
+        try:
+            # Check if files are present in the request
+            if 'manifest_file' not in request.files or 'catalog_file' not in request.files:
+                return jsonify({
+                    "error": "Both manifest_file and catalog_file are required"
+                }), 400
+            
+            manifest_file = request.files['manifest_file']
+            catalog_file = request.files['catalog_file']
+            
+            # Validate file names
+            if manifest_file.filename == '' or catalog_file.filename == '':
+                return jsonify({
+                    "error": "Both files must have valid filenames"
+                }), 400
+            
+            # Read file contents
+            manifest_content = manifest_file.read()
+            catalog_content = catalog_file.read()
+            
+            # Load metadata to graph database
+            self.dbt_loader.load_dbt_metadata(manifest_content, catalog_content)
+            
+            return jsonify({
+                "message": "DBT metadata uploaded successfully",
+                "graph_db": os.environ.get('GRAPH_DB'),
+                "manifest_file": manifest_file.filename,
+                "catalog_file": catalog_file.filename
+            })
+            
+        except ImportError as e:
+            return jsonify({
+                "error": f"Required DBT graph loader library not found: {str(e)}"
+            }), 500
+        except ValueError as e:
+            return jsonify({
+                "error": str(e)
+            }), 400
+        except Exception as e:
+            return jsonify({
+                "error": f"Error uploading DBT metadata: {str(e)}"
+            }), 500
+    
+    @expose("/api/graph_db_status", methods=["GET"])
+    @admin_only
+    @failure_tolerant
+    def graph_db_status(self, **kwargs):
+        """Get the current graph database configuration status"""
+        return jsonify({
+            "graph_db_enabled": self.dbt_loader.is_graph_db_enabled(),
+            "graph_db": os.environ.get('GRAPH_DB'),
+            "graph_user": bool(os.environ.get('GRAPH_USER')),
+            "graph_password": bool(os.environ.get('GRAPH_PASSWORD'))
+        })
 
 # Create the view instance
 chat_view = AirflowChatView()
@@ -522,6 +635,10 @@ chat_package = {
     "category": "Tools",
     "view": chat_view,
 }
+
+# Conditionally add DBT Upload menu item only if GRAPH_DB is set
+menu_items = []
+
 
 class AirflowChatPlugin(AirflowPlugin):
     name = "airflow_chat_plugin"

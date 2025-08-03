@@ -6,6 +6,10 @@ from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import HumanMessage, BaseMessage, \
     SystemMessage, ToolMessage, AIMessage, AIMessageChunk
 
+from langchain_neo4j import GraphCypherQAChain, Neo4jGraph
+from langchain.chains import FalkorDBQAChain
+from langchain_community.graphs import FalkorDBGraph
+
 from ..databases.postgres import Database
 from ..models import ChatModel
 from ..utils.logger import Logger
@@ -19,7 +23,7 @@ from langchain.tools import Tool
 from langfuse.callback import CallbackHandler
 
 
-PROMPT_MESSAGE = """Be a chatbot."""
+PROMPT_MESSAGE = """You are an Airflow chatbot designed to assist Data Engineers, Data Analysts, and other team members. By leveraging Airflow MCP and a variety of other tools, you help teams navigate data more effectively and streamline their workflows."""
 
 
 class LLMEventType(Enum):
@@ -253,6 +257,36 @@ async def get_stream_agent_responce(session_id, message,
 
     client = MultiServerMCPClient(mcps)
     tools = await client.get_tools() + [datetime_tool]
+    dbt_prompt = '''The database schema includes:
+- Node Types: Model, Source, Macro, Test, Seed, Snapshot
+- Model attributes: materialized, resource_type, alias, schema
+- Relationships: DEPENDS_ON, REFERENCES, TESTS, USES_MACRO
+Use this retriever to answer questions about model lineage, dependencies, testing coverage, and data flow in our dbt project.
+    '''
+    if os.environ.get('GRAPH_DB') == 'falkordb':
+        graph = FalkorDBGraph(host=os.environ.get('GRAPH_HOST', 'falkordb'),
+                              port=6379, database="dbt_graph",
+                              username=os.environ.get('GRAPH_USER'),
+                              password=os.environ.get('GRAPH_PASSWORD'
+                                                      ),)
+        chain = FalkorDBQAChain.from_llm(ChatModel(), graph=graph, verbose=True, allow_dangerous_requests=True)
+        retriever_tool = chain.as_tool(name="Falkor_Knowledge_Graph_Retriever_DBT",
+                                            description=f"Query and retrieve dbt data from your Falkor graph database using Cypher syntax\n{dbt_prompt}")
+        tools.append(retriever_tool)
+    elif os.environ.get('GRAPH_DB') == 'neo4j':
+        graph = Neo4jGraph(url=f"bolt://{os.environ.get('GRAPH_HOST', 'neo4j')}:7687",
+                           username=os.environ.get('GRAPH_USER'),
+                           password=os.environ.get('GRAPH_PASSWORD'),
+                           enhanced_schema=True)
+        chain = GraphCypherQAChain.from_llm(
+            ChatModel(),
+            graph=graph,
+            verbose=True,
+            allow_dangerous_requests=True,
+        )
+        retriever_tool = chain.as_tool(name="Neo4J_Knowledge_Graph_Retriever_DBT",
+                                       description=f"Query your Neo4j graph database using Cypher to retrieve nodes, relationships, and insights.\n{dbt_prompt}")
+        tools.append(retriever_tool)
 
     async def stream_agent_response():
         async with LLMAgent(tools=tools, md_uri=md_uri) as llm_agent:

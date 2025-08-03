@@ -4,6 +4,11 @@
   <div class="chat-header">
     <h1><i class="fa fa-comments"></i> AI Assistant</h1>
     <div class="chat-controls">
+      {% if graph_db_enabled %}
+      <a href="{{ url_for('AirflowChatView.dbt_upload_interface') }}" class="btn btn-sm btn-warning">
+        <i class="fa fa-upload"></i> DBT Upload
+      </a>
+      {% endif %}
       <button id="newChat" class="btn btn-sm btn-primary">
         <i class="fa fa-plus"></i> New Chat
       </button>
@@ -19,6 +24,9 @@
         <div class="message-content">
           <div class="message-text">
             Hello! I'm your Airflow AI assistant.
+            {% if graph_db_enabled %}
+            <br><small><i class="fa fa-database"></i> Graph database is enabled - you can ask about DBT models and lineage.</small>
+            {% endif %}
           </div>
           <div class="message-time">Just now</div>
         </div>
@@ -55,6 +63,15 @@
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chat-controls a.btn {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.chat-controls a.btn:hover {
+  text-decoration: none;
 }
 
 .chat-header {
