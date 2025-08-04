@@ -1,7 +1,7 @@
 from airflow import settings
 from airflow.plugins_manager import AirflowPlugin
 from flask import Blueprint, request, jsonify, Response, stream_template, \
-    flash, url_for, redirect
+    flash, url_for, redirect, current_app
 from flask_login import current_user
 from flask_appbuilder import expose, BaseView as AppBuilderBaseView
 from functools import wraps
@@ -25,6 +25,12 @@ bp = Blueprint(
     static_folder="static",
     static_url_path="/static/airflow_chat_plugin",
 )
+
+# Add this function right after the Blueprint definition
+@bp.before_app_first_request
+def configure_upload_limits():
+    """Configure Flask app for large file uploads"""
+    current_app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
 
 # Database model for storing chat sessions
 Base = declarative_base()
@@ -572,6 +578,15 @@ class AirflowChatView(AppBuilderBaseView):
             }), 400
         
         try:
+            # Check request size before processing
+            content_length = request.content_length
+            max_size = 100 * 1024 * 1024  # 100MB
+            
+            if content_length and content_length > max_size:
+                return jsonify({
+                    "error": f"Request too large. Maximum size is {max_size / 1024 / 1024}MB"
+                }), 413
+            
             # Check if files are present in the request
             if 'manifest_file' not in request.files or 'catalog_file' not in request.files:
                 return jsonify({
@@ -587,9 +602,24 @@ class AirflowChatView(AppBuilderBaseView):
                     "error": "Both files must have valid filenames"
                 }), 400
             
+            # Validate file extensions
+            if not manifest_file.filename.endswith('.json') or not catalog_file.filename.endswith('.json'):
+                return jsonify({
+                    "error": "Both files must be JSON files"
+                }), 400
+            
             # Read file contents
             manifest_content = manifest_file.read()
             catalog_content = catalog_file.read()
+            
+            # Validate JSON format
+            try:
+                json.loads(manifest_content)
+                json.loads(catalog_content)
+            except json.JSONDecodeError as e:
+                return jsonify({
+                    "error": f"Invalid JSON format: {str(e)}"
+                }), 400
             
             # Load metadata to graph database
             self.dbt_loader.load_dbt_metadata(manifest_content, catalog_content)
