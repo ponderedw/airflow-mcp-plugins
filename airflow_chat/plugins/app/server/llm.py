@@ -257,10 +257,35 @@ async def get_stream_agent_responce(session_id, message,
 
     client = MultiServerMCPClient(mcps)
     tools = await client.get_tools() + [datetime_tool]
-    dbt_prompt = '''The database schema includes:
-- Node Types: Model, Source, Macro, Test, Seed, Snapshot
-- Model attributes: materialized, resource_type, alias, schema
-- Relationships: DEPENDS_ON, REFERENCES, TESTS, USES_MACRO
+    dbt_prompt = '''Don't use this tool to receieve charts/dashboards/Superset/datasets/datasource metadata. This graph doesn't know anything about them. Find real database name from Superset MCP.
+    The database schema includes:
+- Node Types (labels): "Macro", "Model" (not dataset!!!!, dataset must be discovered in Superset API first of all and search by object name), "Operation", "Seed", "Snapshot", "Source" (source's name is "schema"."name" unlike all the other nodes where it's just "name"), "Test"
+- Model attributes:
+    access:	e.g. protected
+    alias:	The actual object name in the database, which typically matches the model name but may differ in some cases.
+    checksum	
+    database
+    description	
+    enabled: true/false
+    language: sql (can be python for some adapters)
+    materialized: table, view, etc.
+    meta
+    name:	model name (not always dataset/datasource name from Superset!!! So always retrieve Dataset/datasource metadata before it from SupersetMCP)
+    original_file_path	models/{{path}}/{{name}}.sql
+    owner
+    package_name
+    path	{{path}}/{{name}}.sql
+    relation_name	"{{database}}"."{{schema}}"."{{alias}}"
+    resource_type	model
+    schema	
+    table_type	
+    tags	[]
+    unique_id	model.{{package_name}}.{{name}}
+- Relationships:
+    DEPENDS_ON: This relationship connects nodes with the "Model", "Snapshot" label to nodes with the "Model"/"Snapshot"/"Seed"/"Source" label
+    REFERENCES: This relationship connects nodes with the "Model", "Snapshot" label to nodes with the "Model"/"Snapshot"/"Seed" label (not "Source")
+    TESTS: This relationship connects nodes with the "Test" label to nodes with the "Model"/"Snapshot"/"Source"/"Seed" label
+    USES_MACRO: This relationship connects nodes with the "Model"/"Snapshot" label to nodes with the "Macro" label
 Use this retriever to answer questions about model lineage, dependencies, testing coverage, and data flow in our dbt project.
     '''
     if os.environ.get('GRAPH_DB') == 'falkordb':
