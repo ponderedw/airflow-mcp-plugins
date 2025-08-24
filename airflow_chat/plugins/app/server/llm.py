@@ -269,10 +269,10 @@ async def get_stream_agent_responce(session_id, message,
     enabled: true/false
     language: sql (can be python for some adapters)
     materialized: table, view, etc.
-    meta
+    meta: the model's metadata includes the owner information (hardcoded in YAML), PII classification, and other details.
     name:	model name (not always dataset/datasource name from Superset!!! So always retrieve Dataset/datasource metadata before it from SupersetMCP)
     original_file_path	models/{{path}}/{{name}}.sql
-    owner
+    owner: The actual database user who created the model (not the hardcoded email/name in the YAML file).
     package_name
     path	{{path}}/{{name}}.sql
     relation_name	"{{database}}"."{{schema}}"."{{alias}}"
