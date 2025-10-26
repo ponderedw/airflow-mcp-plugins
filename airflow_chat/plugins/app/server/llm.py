@@ -221,7 +221,7 @@ async def get_stream_agent_responce(session_id, message,
                 "AirflowMCP":
                 {
                     'command': "python",
-                    'args': ["-m", "airflow_mcp_hipposys.mcp_airflow"],
+                    'args': ["-m", "airflow_mcp_ponder.mcp_airflow"],
                     "transport": "stdio",
                     'env': {k: v for k, v in {
                         'AIRFLOW_ASSISTENT_AI_CONN': os.getenv(

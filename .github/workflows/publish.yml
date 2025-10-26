@@ -62,7 +62,7 @@ jobs:
           context: .
           file: Dockerfile.server
           push: true
-          tags: hipposysai/airflow-mcp-fastapi:latest,hipposysai/airflow-mcp-fastapi:${{ steps.timestamp.outputs.timestamp }}
+          tags: pondered/airflow-mcp-fastapi:latest,pondered/airflow-mcp-fastapi:${{ steps.timestamp.outputs.timestamp }}
           platforms: linux/amd64,linux/arm64
 
   publish_airflow_plugin:

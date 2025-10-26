@@ -8,7 +8,7 @@ services:
     container_name: mcp_sse_server
     env_file:
       - .env
-    image: hipposysai/airflow-mcp:latest
+    image: pondered/airflow-mcp:latest
     ports:
       - 8000:8000
     restart: always

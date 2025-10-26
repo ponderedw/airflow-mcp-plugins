@@ -4,7 +4,7 @@ version: "3.5"
 
 services:
   chat_fastapi:
-    image: hipposysai/airflow-mcp-fastapi:latest
+    image: pondered/airflow-mcp-fastapi:latest
     container_name: chat_fastapi
     env_file:
       - langchain-fastapi.env
@@ -13,7 +13,7 @@ services:
     networks:
       - data-lake-network 
   mcp_sse_server:
-    image: hipposysai/airflow-mcp:latest
+    image: pondered/airflow-mcp:latest
     container_name: mcp_sse_server
     env_file:
       - airflow-mcp.env

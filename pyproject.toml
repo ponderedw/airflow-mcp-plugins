@@ -3,7 +3,7 @@ name = "airflow-chat"
 version = "0.1.0a13"
 description = "An Apache Airflow plugin that enables AI-powered chat interactions with your Airflow instance through MCP integration and an intuitive UI."
 license = "MIT"
-authors = ["Hipposys"]
+authors = ["Ponder"]
 readme = "airflow_chat/plugins/README.md"
 
 [tool.poetry.dependencies]
@@ -28,7 +28,7 @@ mcp = {extras = ["cli"], version = "^1.6"}
 httpx = "^0.27"
 psycopg = {extras = ["binary"], version = "^3.2"}
 langchain-mcp-adapters = "^0.1.1"
-airflow-mcp-hipposys = "0.1.0a12"
+airflow-mcp-ponder = "0.1.0a12"
 langfuse = "^2.60.8"
 dbt-graph-loader = "0.1.0a1"
 langchain-neo4j = "^0.4.0"
@@ -41,5 +41,5 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.urls]
-homepage = "https://github.com/hipposys-ltd/airflow-schedule-insights"
+homepage = "https://github.com/ponderedw/airflow-mcp-plugins"
 

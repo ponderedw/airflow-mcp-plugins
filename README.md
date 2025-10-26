@@ -204,7 +204,7 @@ TRANSPORT_TYPE=sse
 just prod
 
 # Or with Docker directly
-docker run hipposysai/airflow-mcp:latest
+docker run pondered/airflow-mcp:latest
 ```
 
 📌 **Note**: Update `mcp_host` if you're deploying the MCP server on your own infrastructure.
@@ -251,8 +251,8 @@ just prod
 ```
 
 **Available Images:**
-- `hipposysai/airflow-mcp:latest` - MCP service
-- `hipposysai/airflow-mcp-fastapi:latest` - FastAPI backend
+- `pondered/airflow-mcp:latest` - MCP service
+- `pondered/airflow-mcp-fastapi:latest` - FastAPI backend
 
 See `docker-compose.prod.yml` for complete configuration example.
 
