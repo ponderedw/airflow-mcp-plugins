@@ -75,7 +75,8 @@ services:
   worker:
     <<: [*airflow-common,*airflow-depends-on]
     container_name: airflow-worker
-    command: celery worker
+    command: celery worker --celery-hostname worker@airflow-worker
+    hostname: airflow-worker
     restart: on-failure
     networks:
       - data-lake-network
