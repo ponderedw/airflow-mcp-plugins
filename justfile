@@ -18,6 +18,10 @@ all_neo4j:
   docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.chat.yml -f docker-compose.ui.yml -f docker-compose.mcp.yml -f docker-compose.neo4j.yml down
   docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.chat.yml -f docker-compose.ui.yml -f docker-compose.mcp.yml -f docker-compose.neo4j.yml up --build --pull always
 
+all_falkordb:
+  docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.chat.yml -f docker-compose.ui.yml -f docker-compose.mcp.yml -f docker-compose.falkordb.yml down
+  docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.chat.yml -f docker-compose.ui.yml -f docker-compose.mcp.yml -f docker-compose.falkordb.yml up --build --pull always
+
 prod:
   docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.prod.yml down
   docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.prod.yml up --build --pull always

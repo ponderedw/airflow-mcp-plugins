@@ -1,0 +1,36 @@
+---
+
+volumes:
+  falkordb_data:
+
+services:
+  educational-dbt-docs:
+    container_name: educational-dbt-docs
+    ports:
+      - "8502:80"
+    build:
+      context: ./DbtEducationalDataProject
+      dockerfile: Dockerfile
+    volumes:
+      - ./DbtEducationalDataProject:/usr/app/dbt
+    depends_on:
+      - postgres
+    networks:
+      - data-lake-network
+    environment:
+      - DBT_PROFILES_DIR=/usr/app/dbt
+
+  falkordb:
+    container_name: falkordb
+    image: falkordb/falkordb:latest
+    volumes:
+      - ./falkordb_data:/var/lib/falkordb/data
+    ports:
+      - 3000:3000
+      - 6379:6379
+    restart: always
+    networks:
+      data-lake-network:
+
+networks:
+  data-lake-network: 
