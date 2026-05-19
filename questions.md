@@ -17,7 +17,7 @@
 *Based on [Next-Level Airflow MCP](https://newsletter.ponder.co/p/next-level-airflow-mcp)*
 
 - Pause all currently active DAGs and tell me which ones were already paused before.
-- Which of our DAGs was paused before our last maintenance window? Unpause only those.
+- Which of our DAGs was paused before our last maintenance window? Unpause all of them except the ones that were already paused.
 - When will `dbt_run_intermediate` run next, and how long is it expected to take?
 - What upstream dataset needs to be updated to trigger `transform_parent_sentiment`?
 - Predict the next run time for all DAGs that depend on `dbt_run_staging`.
@@ -36,3 +36,15 @@
 - What's the difference between `transform_resource_optimization` and `transform_grade_performance` in terms of dependencies?
 - Explain the `dbt_run_marts_finance` DAG to someone who doesn't know Airflow.
 - Which pipelines should I be watching if I want to know when today's grade reports are ready?
+
+---
+
+## Part 4 — dbt + Airflow
+- Which Airflow DAG is responsible for running the `student_academic_summary` dbt model?
+- The `int_student_at_risk_indicators` model failed — which Airflow DAG do I need to re-trigger?
+- Walk me through the full path from raw source data to the `graduation_pathway_analysis` mart — which Airflow DAGs and dbt models are involved?
+- `dbt_run_marts_core` finished but `institutional_kpi_dashboard` has stale data — what could have gone wrong upstream?
+- Which dbt models are blocked if `dbt_run_staging` fails?
+- How long does the full dbt pipeline take from staging through all three marts?
+- `stg_financial_aid` and `stg_tuition_payments` both feed into `dbt_run_marts_finance` — if only one of them is fresh, will the mart still run?
+- Show me all Airflow runs for the dbt pipeline from the last 7 days and flag any that took longer than usual.

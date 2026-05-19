@@ -11,3 +11,5 @@ langfuse_data
 neo4j_data
 dist
 .DS_Store
+dbt.log
+dump.rdb
