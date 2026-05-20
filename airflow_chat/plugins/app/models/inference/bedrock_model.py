@@ -12,6 +12,7 @@ class ChatBedrock(BaseChatBedrock):
         default_kwargs = {
             'model_id': model_id,
             'region_name': os.environ.get('AWS_DEFAULT_REGION', 'us-east-1'),
+            'max_tokens': int(os.environ.get('LLM_MAX_TOKENS', 8192)),
             'model_kwargs': dict(temperature=0),
         }
 

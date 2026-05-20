@@ -12,6 +12,7 @@ class ChatAnthropic(BaseChatAnthropic):
         default_kwargs = {
             'model': model_id,
             'temperature': 0,
+            'max_tokens': int(os.environ.get('LLM_MAX_TOKENS', 8192)),
         }
 
         super().__init__(**(default_kwargs | kwargs))

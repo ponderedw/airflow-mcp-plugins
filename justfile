@@ -29,3 +29,6 @@ prod:
 airflow_langfuse:
   docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.langfuse.yml down
   docker compose -f docker-compose.postgres.yml -f docker-compose.airflow.yml -f docker-compose.langfuse.yml up --build --pull always
+
+sites:
+  http://localhost:3000/graph http://localhost:8088/home http://localhost:8502/#!/overview

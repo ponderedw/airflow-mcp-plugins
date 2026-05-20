@@ -187,9 +187,9 @@ class LLMAgent:
             config=chat_session,
             version='v2',
         ):
-            message = ChatMessage.from_event(event)
-            if message:
-                yield message
+            chat_message = ChatMessage.from_event(event)
+            if chat_message:
+                yield chat_message
 
         # Let the client know that the conversation is done.
         # yield ChatMessage.from_event({'event': 'done'})
