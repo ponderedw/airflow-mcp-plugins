@@ -31,7 +31,7 @@ x-depends_on_database:
 
 services:
   redis:
-    image: 'redis:3.2.10'
+    image: redis:7
     networks:
       - data-lake-network
 
