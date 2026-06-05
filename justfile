@@ -32,3 +32,6 @@ airflow_langfuse:
 
 sites:
   http://localhost:3000/graph http://localhost:8088/home http://localhost:8502/#!/overview
+
+start_coder: 
+  coder server --access-url http://localhost:3000 --wildcard-access-url "*.localhost:3000"
